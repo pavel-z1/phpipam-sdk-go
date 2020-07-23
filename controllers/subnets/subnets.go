@@ -143,7 +143,7 @@ func (c *Controller) GetSubnetsByCIDR(cidr string) (out []Subnet, err error) {
 // Note that marking a subnet as used does not prevent this function from
 // returning data.
 func (c *Controller) GetFirstFreeAddress(id int) (out string, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/subnets/%d/first_free/", id), &struct{}{}, &out)
+	err = c.SendRequest("POST", fmt.Sprintf("/subnets/%d/first_free/", id), &struct{}{}, &out)
 	return
 }
 
