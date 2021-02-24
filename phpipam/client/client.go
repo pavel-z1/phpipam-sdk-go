@@ -103,11 +103,11 @@ func (c *Client) GetCustomFields(id int, controller string) (out map[string]inte
 	switch {
 	case err != nil:
 		log.Printf("Error getting custom Fields: %s", err)
-		return
+		return nil, err
 	}
 
 	out, err = c.getCustomFieldsRequest(id, controller, schema)
-	return
+	return out, err
 }
 
 // getCustomFieldsRequest performs the actual work for GetCustomFields. This is
@@ -115,20 +115,23 @@ func (c *Client) GetCustomFields(id int, controller string) (out map[string]inte
 func (c *Client) getCustomFieldsRequest(id int, controller string, schema map[string]phpipam.CustomField) (out map[string]interface{}, err error) {
 	err = c.SendRequest("GET", fmt.Sprintf("/%s/%d/", controller, id), &struct{}{}, &out)
 	if err != nil {
-		return
+		return nil, err
 	}
-	for k := range out {
+
+	fields := out["custom_fields"].(map[string]interface{})
+
+	for k := range fields {
 		for l := range schema {
 			if k == l {
 				goto customFieldFound
 			}
 		}
 		// not found
-		delete(out, k)
+		delete(fields, k)
 		// found
 	customFieldFound:
 	}
-	return
+	return fields, nil
 }
 
 // UpdateCustomFields uses PATCH on a resource controller to update a specific
