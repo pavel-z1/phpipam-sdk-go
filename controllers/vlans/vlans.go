@@ -11,19 +11,19 @@ import (
 )
 
 // VLAN represents a PHPIPAM VLAN.
-type VLAN struct {
+type VLANDTO struct {
 	// The VLAN ID. This is the entry ID in the PHPIPAM database, and not the
 	// VLAN number, which is represented by the Number field.
-	ID int `json:"id,string,omitempty"`
+	ID phpipam.JSONIntString `json:"id,omitempty"`
 
 	// The Layer 2 domain identifier of the VLAN.
-	DomainID int `json:"domainId,string,omitempty"`
+	DomainID phpipam.JSONIntString `json:"domainId,omitempty"`
 
 	// The VLAN name/label.
 	Name string `json:"name,omitempty"`
 
 	// The VLAN number.
-	Number int `json:"number,string,omitempty"`
+	Number phpipam.JSONIntString `json:"number,omitempty"`
 
 	// A detailed description of the VLAN.
 	Description string `json:"description,omitempty"`
@@ -37,6 +37,56 @@ type VLAN struct {
 	// enabled, this map will be nil on GETs and POSTs and PATCHes with this
 	// field set will fail. Use the explicit custom field functions instead.
 	CustomFields map[string]interface{} `json:"custom_fields,omitempty"`
+}
+
+type VLAN struct {
+	// The VLAN ID. This is the entry ID in the PHPIPAM database, and not the
+	// VLAN number, which is represented by the Number field.
+	ID int
+
+	// The Layer 2 domain identifier of the VLAN.
+	DomainID int
+
+	// The VLAN name/label.
+	Name string
+
+	// The VLAN number.
+	Number int
+
+	// A detailed description of the VLAN.
+	Description string
+
+	// The date of the last edit to this resource.
+	EditDate string
+
+	// A map[string]interface{} of custom fields to set on the resource. Note
+	// that this functionality requires PHPIPAM 1.3 or higher with the "Nest
+	// custom fields" flag set on the specific API integration. If this is not
+	// enabled, this map will be nil on GETs and POSTs and PATCHes with this
+	// field set will fail. Use the explicit custom field functions instead.
+	CustomFields map[string]interface{}
+}
+
+func (v *VLAN) FromDTO(dto *VLANDTO) {
+	v.ID = int(dto.ID)
+	v.DomainID = int(dto.DomainID)
+	v.Name = dto.Name
+	v.Number = int(dto.Number)
+	v.Description = dto.Description
+	v.EditDate = dto.EditDate
+	v.CustomFields = dto.CustomFields
+}
+
+func (v *VLAN) ToDTO() *VLANDTO {
+	return &VLANDTO{
+		ID:          phpipam.JSONIntString(v.ID),
+		DomainID:    phpipam.JSONIntString(v.DomainID),
+		Name:        v.Name,
+		Number:      phpipam.JSONIntString(v.Number),
+		Description: v.Description,
+		EditDate:    v.EditDate,
+		CustomFields: v.CustomFields,
+	}
 }
 
 // Controller is the base client for the VLAN controller.
@@ -54,13 +104,15 @@ func NewController(sess *session.Session) *Controller {
 
 // CreateVLAN creates a VLAN by sending a POST request.
 func (c *Controller) CreateVLAN(in VLAN) (message string, err error) {
-	err = c.SendRequest("POST", "/vlans/", &in, &message)
+	err = c.SendRequest("POST", "/vlans/", in.ToDTO(), &message)
 	return
 }
 
 // GetVLANByID GETs a VLAN via its ID in the PHPIPAM database.
 func (c *Controller) GetVLANByID(id int) (out VLAN, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/vlans/%d/", id), &struct{}{}, &out)
+	var dto VLANDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/vlans/%d/", id), &struct{}{}, &dto)
+	out.FromDTO(&dto)
 	return
 }
 
@@ -71,13 +123,25 @@ func (c *Controller) GetVLANByID(id int) (out VLAN, err error) {
 // the output from this method is an array of VLANs, so this function returns a
 // slice.
 func (c *Controller) GetVLANsByNumber(id int) (out []VLAN, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/", id), &struct{}{}, &out)
+	var dtos []VLANDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/", id), &struct{}{}, &dtos)
+	for _, dto := range dtos {
+		var vlan VLAN
+		vlan.FromDTO(&dto)
+		out = append(out, vlan)
+	}
 	return
 }
 
 func (c *Controller) GetVLANsByNumberAndDomainID(vlan_id int, domain_id int) (out []VLAN, err error) {
-        err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/?filter_by=domainId&filter_value=%d", vlan_id, domain_id), &struct{}{}, &out)
-        return
+	var dtos []VLANDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/?filter_by=domainId&filter_value=%d", vlan_id, domain_id), &struct{}{}, &dtos)
+	for _, dto := range dtos {
+		var vlan VLAN
+		vlan.FromDTO(&dto)
+		out = append(out, vlan)
+	}
+	return
 }
 
 // GetVLANCustomFieldsSchema GETs the custom fields for the vlans controller via
@@ -96,7 +160,7 @@ func (c *Controller) GetVLANCustomFields(id int) (out map[string]interface{}, er
 
 // UpdateVLAN updates a VLAN by sending a PATCH request.
 func (c *Controller) UpdateVLAN(in VLAN) (message string, err error) {
-	err = c.SendRequest("PATCH", "/vlans/", &in, &message)
+	err = c.SendRequest("PATCH", "/vlans/", in.ToDTO(), &message)
 	return
 }
 

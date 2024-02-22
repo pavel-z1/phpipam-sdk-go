@@ -12,9 +12,9 @@ import (
 )
 
 // Section represents a PHPIPAM section.
-type Section struct {
+type SectionDTO struct {
 	// The section ID.
-	ID int `json:"id,string,omitempty"`
+	ID phpipam.JSONIntString `json:"id,omitempty"`
 
 	// The section's name.
 	Name string `json:"name,omitempty"`
@@ -23,7 +23,7 @@ type Section struct {
 	Description string `json:"description,omitempty"`
 
 	// The ID of the section's parent, if nested.
-	MasterSection int `json:"masterSection,string,omitempty"`
+	MasterSection phpipam.JSONIntString `json:"masterSection,omitempty"`
 
 	// A JSON object, stringified, that represents the permissions for this
 	// section.
@@ -36,7 +36,7 @@ type Section struct {
 	SubnetOrdering string `json:"subnetOrdering,omitempty"`
 
 	// The order position of this section when displaying sections.
-	Order int `json:"order,string,omitempty"`
+	Order phpipam.JSONIntString `json:"order,omitempty"`
 
 	// The date of the last edit to this resource.
 	EditDate string `json:"editDate,omitempty"`
@@ -53,7 +53,85 @@ type Section struct {
 	ShowSupernetOnly phpipam.BoolIntString `json:"showSupernetOnly,omitempty"`
 
 	// The ID of the DNS resolver to be used for this section.
-	DNS int `json:"DNS,string,omitempty"`
+	DNS phpipam.JSONIntString `json:"DNS,omitempty"`
+}
+
+type Section struct {
+	// The section ID.
+	ID int
+
+	// The section's name.
+	Name string
+
+	// The section's description.
+	Description string
+
+	// The ID of the section's parent, if nested.
+	MasterSection int
+
+	// A JSON object, stringified, that represents the permissions for this
+	// section.
+	Permissions string
+
+	// Whether or not to check consistency for subnets and IP addresses.
+	StrictMode phpipam.BoolIntString
+
+	// How to order subnets in this section when viewing.
+	SubnetOrdering string
+
+	// The order position of this section when displaying sections.
+	Order int
+
+	// The date of the last edit to this resource.
+	EditDate string
+
+	// Whether or not to show VLANs in the subnet listing of this section.
+	ShowVLAN phpipam.BoolIntString
+
+	// Whether or not to show VRF information in the subnet listing of this
+	// section.
+	ShowVRF phpipam.BoolIntString
+
+	// Whether or not to show only supernets in the subnet listing of this
+	// section.
+	ShowSupernetOnly phpipam.BoolIntString
+
+	// The ID of the DNS resolver to be used for this section.
+	DNS int
+}
+
+func (s *Section) FromDTO(sectionDTO *SectionDTO) {
+	s.ID = int(sectionDTO.ID)
+	s.Name = sectionDTO.Name
+	s.Description = sectionDTO.Description
+	s.MasterSection = int(sectionDTO.MasterSection)
+	s.Permissions = sectionDTO.Permissions
+	s.StrictMode = sectionDTO.StrictMode
+	s.SubnetOrdering = sectionDTO.SubnetOrdering
+	s.Order = int(sectionDTO.Order)
+	s.EditDate = sectionDTO.EditDate
+	s.ShowVLAN = sectionDTO.ShowVLAN
+	s.ShowVRF = sectionDTO.ShowVRF
+	s.ShowSupernetOnly = sectionDTO.ShowSupernetOnly
+	s.DNS = int(sectionDTO.DNS)
+}
+
+func (s *Section) ToDTO() *SectionDTO {
+	return &SectionDTO{
+		ID:               phpipam.JSONIntString(s.ID),
+		Name:             s.Name,
+		Description:      s.Description,
+		MasterSection:    phpipam.JSONIntString(s.MasterSection),
+		Permissions:      s.Permissions,
+		StrictMode:       s.StrictMode,
+		SubnetOrdering:   s.SubnetOrdering,
+		Order:            phpipam.JSONIntString(s.Order),
+		EditDate:         s.EditDate,
+		ShowVLAN:         s.ShowVLAN,
+		ShowVRF:          s.ShowVRF,
+		ShowSupernetOnly: s.ShowSupernetOnly,
+		DNS:              phpipam.JSONIntString(s.DNS),
+	}
 }
 
 // Controller is the base client for the Sections controller.
@@ -71,37 +149,53 @@ func NewController(sess *session.Session) *Controller {
 
 // ListSections lists all sections.
 func (c *Controller) ListSections() (out []Section, err error) {
-	err = c.SendRequest("GET", "/sections/", &struct{}{}, &out)
+	var dto []SectionDTO
+	err = c.SendRequest("GET", "/sections/", &struct{}{}, &dto)
+	for _, sectionDTO := range dto {
+		var section Section
+		section.FromDTO(&sectionDTO)
+		out = append(out, section)
+	}
 	return
 }
 
 // CreateSection creates a section by sending a POST request.
 func (c *Controller) CreateSection(in Section) (message string, err error) {
-	err = c.SendRequest("POST", "/sections/", &in, &message)
+	err = c.SendRequest("POST", "/sections/", in.ToDTO(), &message)
 	return
 }
 
 // GetSectionByID GETs a section via its ID.
 func (c *Controller) GetSectionByID(id int) (out Section, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/", id), &struct{}{}, &out)
+	var dto SectionDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/", id), &struct{}{}, &dto)
+	out.FromDTO(&dto)
 	return
 }
 
 // GetSectionByName GETs a section via its name.
 func (c *Controller) GetSectionByName(name string) (out Section, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/sections/%s/", name), &struct{}{}, &out)
+	var dto SectionDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/sections/%s/", name), &struct{}{}, &dto)
+	out.FromDTO(&dto)
 	return
 }
 
 // GetSubnetsInSection GETs the subnets in a section by section ID.
 func (c *Controller) GetSubnetsInSection(id int) (out []subnets.Subnet, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/subnets/", id), &struct{}{}, &out)
+	var dtos []subnets.SubnetDTO
+	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/subnets/", id), &struct{}{}, &dtos)
+	for _, subnetDTO := range dtos {
+		var subnet subnets.Subnet
+		subnet.FromDTO(&subnetDTO)
+		out = append(out, subnet)
+	}
 	return
 }
 
 // UpdateSection updates a section by sending a PATCH request.
 func (c *Controller) UpdateSection(in Section) (err error) {
-	err = c.SendRequest("PATCH", "/sections/", &in, &struct{}{})
+	err = c.SendRequest("PATCH", "/sections/", in.ToDTO(), &struct{}{})
 	return
 }
 

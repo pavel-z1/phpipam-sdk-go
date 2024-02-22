@@ -103,7 +103,12 @@ func (bis BoolIntString) MarshalJSON() ([]byte, error) {
 func (bis *BoolIntString) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
-		return err
+		// If unmarshalling to a string fails, try unmarshalling to an int.
+		var i int
+		if err := json.Unmarshal(b, &i); err != nil {
+			return err
+		}
+		s = strconv.Itoa(int(i))
 	}
 	switch s {
 	case "0", "":
@@ -133,19 +138,25 @@ func (jis JSONIntString) MarshalJSON() ([]byte, error) {
 func (jis *JSONIntString) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-	if s == "" {
-		*jis = 0
-	} else {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return &json.UnmarshalTypeError{
-				Value: "int",
-				Type:  reflect.ValueOf(s).Type(),
-			}
+		// If unmarshalling to a string fails, try unmarshalling to an int.
+		var i int
+		if err := json.Unmarshal(b, &i); err != nil {
+			return err
 		}
 		*jis = JSONIntString(i)
+	} else {
+		if s == "" {
+			*jis = 0
+		} else {
+			i, err := strconv.Atoi(s)
+			if err != nil {
+				return &json.UnmarshalTypeError{
+					Value: "int",
+					Type:  reflect.ValueOf(s).Type(),
+				}
+			}
+			*jis = JSONIntString(i)
+		}
 	}
 
 	return nil
