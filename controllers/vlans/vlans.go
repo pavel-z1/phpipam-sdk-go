@@ -14,16 +14,16 @@ import (
 type VLAN struct {
 	// The VLAN ID. This is the entry ID in the PHPIPAM database, and not the
 	// VLAN number, which is represented by the Number field.
-	ID int `json:"id,string,omitempty"`
+	ID int `json:"id,omitempty"`
 
 	// The Layer 2 domain identifier of the VLAN.
-	DomainID int `json:"domainId,string,omitempty"`
+	DomainID int `json:"domainId,omitempty"`
 
 	// The VLAN name/label.
 	Name string `json:"name,omitempty"`
 
 	// The VLAN number.
-	Number int `json:"number,string,omitempty"`
+	Number int `json:"number,omitempty"`
 
 	// A detailed description of the VLAN.
 	Description string `json:"description,omitempty"`
