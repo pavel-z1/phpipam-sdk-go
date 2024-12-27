@@ -15,19 +15,18 @@ const defaultAPIAddress = "http://localhost/api"
 
 // Config contains the configuration for connecting to the PHPIPAM API.
 //
-//
-// Supplying Configuration to Controllers
+// # Supplying Configuration to Controllers
 //
 // All controller constructors (ie: VLANs, subnets, addresses, etc) take zero or
 // more of these structs as configuration, like so:
 //
-//   cfg := phpipam.Config{
-//     Username:     "jdoe",
-//     Password:     "password",
-//     AppID:        "appid",
-//   }
-//   sess := session.New(cfg)
-//   ctlr := ipaddr.New(sess)
+//	cfg := phpipam.Config{
+//	  Username:     "jdoe",
+//	  Password:     "password",
+//	  AppID:        "appid",
+//	}
+//	sess := session.New(cfg)
+//	ctlr := ipaddr.New(sess)
 //
 // Note that default options are set for EmailAddress, Password, and AppKey.
 // See the DefaultConfigProvider method for more details.
@@ -50,10 +49,10 @@ type Config struct {
 }
 
 // DefaultConfigProvider supplies a default configuration:
-//  * AppID defaults to PHPIPAM_APP_ID, if set, otherwise empty
-//  * Endpoint defaults to PHPIPAM_ENDPOINT_ADDR, otherwise http://localhost/api
-//  * Password defaults to PHPIPAM_PASSWORD, if set, otherwise empty
-//  * Username defaults to PHPIPAM_USER_NAME, if set, otherwise empty
+//   - AppID defaults to PHPIPAM_APP_ID, if set, otherwise empty
+//   - Endpoint defaults to PHPIPAM_ENDPOINT_ADDR, otherwise http://localhost/api
+//   - Password defaults to PHPIPAM_PASSWORD, if set, otherwise empty
+//   - Username defaults to PHPIPAM_USER_NAME, if set, otherwise empty
 //
 // This essentially loads an initial config state for any given
 // API service.
@@ -77,6 +76,47 @@ func DefaultConfigProvider() Config {
 		}
 	}
 	return cfg
+}
+
+// BoolInt is a type for representing a boolean in an Int form,
+// such as 0 for false and 1 for true.
+//
+// This is technically a binary string as per the PHPIPAM spec, however in test
+// JSON and the spec itself, boolean values seem to be represented by the
+// actual string values as shown above.
+type BoolInt bool
+
+// MarshalJSON implements json.Marshaler for the BoolIntString type.
+func (bis BoolInt) MarshalJSON() ([]byte, error) {
+	var s int
+	switch bis {
+	case false:
+		s = 0
+	case true:
+		s = 1
+	}
+	return json.Marshal(s)
+}
+
+// UnmarshalJSON implements json.Unmarshaler for the BoolIntString type.
+func (bis *BoolInt) UnmarshalJSON(b []byte) error {
+	var s int
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+	switch s {
+	case 0:
+		*bis = false
+	case 1:
+		*bis = true
+	default:
+		return &json.UnmarshalTypeError{
+			Value: "bool",
+			Type:  reflect.ValueOf(s).Type(),
+		}
+	}
+
+	return nil
 }
 
 // BoolIntString is a type for representing a boolean in an IntString form,

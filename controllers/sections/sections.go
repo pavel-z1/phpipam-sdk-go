@@ -5,16 +5,16 @@ package sections
 import (
 	"fmt"
 
-	"github.com/pavel-z1/phpipam-sdk-go/controllers/subnets"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/client"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/controllers/subnets"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/client"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 // Section represents a PHPIPAM section.
 type Section struct {
 	// The section ID.
-	ID int `json:"id,string,omitempty"`
+	ID int `json:"id,omitempty"`
 
 	// The section's name.
 	Name string `json:"name,omitempty"`
@@ -23,7 +23,7 @@ type Section struct {
 	Description string `json:"description,omitempty"`
 
 	// The ID of the section's parent, if nested.
-	MasterSection int `json:"masterSection,string,omitempty"`
+	MasterSection int `json:"masterSection,omitempty"`
 
 	// A JSON object, stringified, that represents the permissions for this
 	// section.
@@ -36,24 +36,24 @@ type Section struct {
 	SubnetOrdering string `json:"subnetOrdering,omitempty"`
 
 	// The order position of this section when displaying sections.
-	Order int `json:"order,string,omitempty"`
+	Order int `json:"order,omitempty"`
 
 	// The date of the last edit to this resource.
 	EditDate string `json:"editDate,omitempty"`
 
 	// Whether or not to show VLANs in the subnet listing of this section.
-	ShowVLAN phpipam.BoolIntString `json:"showVLAN,omitempty"`
+	ShowVLAN phpipam.BoolInt `json:"showVLAN,omitempty"`
 
 	// Whether or not to show VRF information in the subnet listing of this
 	// section.
-	ShowVRF phpipam.BoolIntString `json:"showVRF,omitempty"`
+	ShowVRF phpipam.BoolInt `json:"showVRF,omitempty"`
 
 	// Whether or not to show only supernets in the subnet listing of this
 	// section.
-	ShowSupernetOnly phpipam.BoolIntString `json:"showSupernetOnly,omitempty"`
+	ShowSupernetOnly phpipam.BoolInt `json:"showSupernetOnly,omitempty"`
 
 	// The ID of the DNS resolver to be used for this section.
-	DNS int `json:"DNS,string,omitempty"`
+	DNS int `json:"DNS,omitempty"`
 }
 
 // Controller is the base client for the Sections controller.

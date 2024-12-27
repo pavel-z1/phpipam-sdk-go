@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 const testDateStamp = "2999-12-31 23:59:59"
@@ -47,28 +47,28 @@ const subnetSearchOKResponseText = `
   "success": true,
   "data": [
     {
-      "id": "3",
+      "id": 3,
       "subnet": "10.10.1.0",
       "mask": "24",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "Customer 1",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "2",
-      "allowRequests": "1",
-      "vlanId": "0",
-      "showName": "1",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 2,
+      "allowRequests": 1,
+      "vlanId": 0,
+      "showName": 1,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
 			"Projects": "bazboop",
       "links": [
@@ -87,28 +87,28 @@ const subnetGetOKResponseText = `
   "code": 200,
   "success": true,
   "data": {
-    "id": "3",
+    "id": 3,
     "subnet": "10.10.1.0",
     "mask": "24",
-    "sectionId": "1",
+    "sectionId": 1,
     "description": "Customer 1",
     "firewallAddressObject": null,
-    "vrfId": "0",
-    "masterSubnetId": "2",
-    "allowRequests": "1",
-    "vlanId": "0",
-    "showName": "1",
-    "device": "0",
+    "vrfId": 0,
+    "masterSubnetId": 2,
+    "allowRequests": 1,
+    "vlanId": 0,
+    "showName": 1,
+    "device": 0,
     "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-    "pingSubnet": "0",
-    "discoverSubnet": "0",
-    "DNSrecursive": "0",
-    "DNSrecords": "0",
-    "nameserverId": "0",
+    "pingSubnet": 0,
+    "discoverSubnet": 0,
+    "DNSrecursive": 0,
+    "DNSrecords": 0,
+    "nameserverId": 0,
     "scanAgent": null,
-    "isFolder": "0",
-    "isFull": "0",
-    "tag": "2",
+    "isFolder": 0,
+    "isFull": 0,
+    "tag": 2,
     "editDate": null,
     "Projects": "bazboop",
     "links": [
@@ -125,27 +125,27 @@ const subnetGetOKResponseText = `
 // the subnets controller. Some fields that are missing from the API
 // documentation, or are ambiguous, are omitted.
 type testSubnetData struct {
-	ID             int `json:",string"`
+	ID             int `json:""`
 	Subnet         string
 	Mask           string
-	SectionID      int `json:",string"`
+	SectionID      int `json:""`
 	Description    string
-	VrfID          int `json:",string"`
-	MasterSubnetID int `json:",string"`
-	AllowRequests  int `json:",string"`
-	VlanID         int `json:",string"`
-	ShowName       int `json:",string"`
-	Device         int `json:",string"`
+	VrfID          int             `json:""`
+	MasterSubnetID int             `json:""`
+	AllowRequests  phpipam.BoolInt `json:""`
+	VlanID         int             `json:""`
+	ShowName       int             `json:""`
+	Device         int             `json:""`
 	Permissions    string
-	PingSubnet     int `json:",string"`
-	DiscoverSubnet int `json:",string"`
-	DNSRecursive   int `json:",string"`
-	DNSRecords     int `json:",string"`
-	NameserverID   int `json:",string"`
-	IsFolder       int `json:",string"`
-	IsFull         int `json:",string"`
+	PingSubnet     int             `json:""`
+	DiscoverSubnet phpipam.BoolInt `json:""`
+	DNSRecursive   phpipam.BoolInt `json:""`
+	DNSRecords     phpipam.BoolInt `json:""`
+	NameserverID   int             `json:""`
+	IsFolder       phpipam.BoolInt `json:""`
+	IsFull         phpipam.BoolInt `json:""`
 	EditDate       string
-	TagID          int `json:"tag,string"`
+	TagID          int `json:"tag"`
 }
 
 type testSubnetDataResponse struct {

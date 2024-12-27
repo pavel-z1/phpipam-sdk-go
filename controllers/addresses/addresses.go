@@ -5,24 +5,24 @@ package addresses
 import (
 	"fmt"
 
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/client"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/client"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 // Address represents an IP address resource within PHPIPAM.
 type Address struct {
 	// The ID of the IP address entry within PHPIPAM.
-	ID int `json:"id,string,omitempty"`
+	ID int `json:"id,omitempty"`
 
 	// The ID of the subnet that the address belongs to.
-	SubnetID int `json:"subnetId,string,omitempty"`
+	SubnetID int `json:"subnetId,omitempty"`
 
 	// The IP address, without a CIDR subnet mask.
 	IPAddress string `json:"ip,omitempty"`
 
 	// true if this IP address is a gateway address.
-	IsGateway phpipam.BoolIntString `json:"is_gateway,omitempty"`
+	IsGateway phpipam.BoolInt `json:"is_gateway,omitempty"`
 
 	// A detailed description of the IP address entry.
 	Description string `json:"description,omitempty"`
@@ -37,16 +37,16 @@ type Address struct {
 	Owner string `json:"owner,omitempty"`
 
 	// The tag ID for the IP address.
-	Tag int `json:"tag,string,omitempty"`
+	Tag int `json:"tag,omitempty"`
 
 	// true if PTR records should not be created for this IP address.
-	PTRIgnore phpipam.BoolIntString `json:"PTRIgnore,omitempty"`
+	PTRIgnore phpipam.BoolInt `json:"PTRIgnore,omitempty"`
 
 	// The ID of a PowerDNS PTR record.
-	PTRRecordID int `json:"PTR,string,omitempty"`
+	PTRRecordID int `json:"PTR,omitempty"`
 
 	// An ID of a device that this address belongs to.
-	DeviceID int `json:"deviceId,string,omitempty"`
+	DeviceID int `json:"deviceId,omitempty"`
 
 	// A switchport number/label that this IP address belongs to.
 	Port string `json:"port,omitempty"`
@@ -59,7 +59,7 @@ type Address struct {
 	LastSeen string `json:"lastSeen,omitempty"`
 
 	// true if you want to exclude this address from ping scans.
-	ExcludePing phpipam.BoolIntString `json:"excludePing,omitempty"`
+	ExcludePing phpipam.BoolInt `json:"excludePing,omitempty"`
 
 	// The date of the last edit to this resource.
 	EditDate string `json:"editDate,omitempty"`
@@ -93,8 +93,8 @@ func (c *Controller) CreateAddress(in Address) (message string, err error) {
 
 // CreateAddress creates a first free in subnet address by sending a POST request.
 func (c *Controller) CreateFirstFreeAddress(id int, in Address) (out string, err error) {
-        err = c.SendRequest("POST", fmt.Sprintf("/addresses/first_free/%d/", id), &in, &out)
-        return
+	err = c.SendRequest("POST", fmt.Sprintf("/addresses/first_free/%d/", id), &in, &out)
+	return
 }
 
 // GetAddressByID GETs an address via its ID.
@@ -114,9 +114,9 @@ func (c *Controller) GetAddressesByIP(ipaddr string) (out []Address, err error) 
 
 // GetAddressesByIP searches for an address by its IP with in given subnet
 // When having multiple subnets with same ip range this will return the address in the given subnet
-// Those subnet may not talk to each other but still exist under on phpIPAM instance especially on ones migrated from previous versions 
-func (c *Controller) GetAddressesByIpInSubnet(ipaddr string,subnetID int) (out Address, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/addresses/%s/%d", ipaddr,subnetID), &struct{}{}, &out)
+// Those subnet may not talk to each other but still exist under on phpIPAM instance especially on ones migrated from previous versions
+func (c *Controller) GetAddressesByIpInSubnet(ipaddr string, subnetID int) (out Address, err error) {
+	err = c.SendRequest("GET", fmt.Sprintf("/addresses/%s/%d", ipaddr, subnetID), &struct{}{}, &out)
 	return
 }
 

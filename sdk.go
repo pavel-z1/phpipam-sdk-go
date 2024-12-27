@@ -6,5 +6,5 @@
 // Terraform provider to help insert data gathered from AWS and beyond.
 //
 // For SDK usage, see the GoDoc at
-// https://godoc.org/github.com/pavel-z1/phpipam-sdk-go.
+// https://godoc.org/github.com/lucasdk3/phpipam-sdk-go.
 package sdk

@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
-	"github.com/pavel-z1/phpipam-sdk-go/testacc"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/testacc"
 )
 
 var testCreateVLANInput = VLAN{
@@ -39,10 +39,10 @@ const testGetVLANByIDOutputJSON = `
   "code": 200,
   "success": true,
   "data": {
-    "id": "3",
-    "domainId": "1",
+    "id": 3,
+    "domainId": 1,
     "name": "foolan",
-    "number": "1000",
+    "number": 1000,
     "description": null,
     "editDate": null,
     "links": [
@@ -69,7 +69,7 @@ const testGetVLANByIDOutputJSON = `
 `
 
 var testGetVLANsByNumberOutputExpected = []VLAN{
-	VLAN{
+	{
 		ID:       3,
 		DomainID: 1,
 		Name:     "foolan",
@@ -83,10 +83,10 @@ const testGetVLANsByNumberOutputJSON = `
   "success": true,
   "data": [
     {
-      "id": "3",
-      "domainId": "1",
+      "id": 3,
+      "domainId": 1,
       "name": "foolan",
-      "number": "1000",
+      "number": 1000,
       "description": null,
       "editDate": null,
       "links": [
@@ -101,14 +101,14 @@ const testGetVLANsByNumberOutputJSON = `
 `
 
 var testGetVLANCustomFieldsSchemaExpected = map[string]phpipam.CustomField{
-	"CustomTestVLANs": phpipam.CustomField{
+	"CustomTestVLANs": {
 		Name:    "CustomTestVLANs",
 		Type:    "varchar(255)",
 		Comment: "Test field for vlans controller",
 		Null:    "YES",
 		Default: "",
 	},
-	"CustomTestVLANs2": phpipam.CustomField{
+	"CustomTestVLANs2": {
 		Name:    "CustomTestVLANs2",
 		Type:    "varchar(255)",
 		Comment: "Test field for vlans controller (second field)",

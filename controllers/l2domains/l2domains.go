@@ -5,16 +5,16 @@ package l2domains
 import (
 	"fmt"
 
-	"github.com/pavel-z1/phpipam-sdk-go/controllers/vlans"
-	//"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/client"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/controllers/vlans"
+	//"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/client"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 // L2Domain represents a PHPIPAM l2domain.
 type L2Domain struct {
 	// The L2 domain ID.
-	ID int `json:"id,string,omitempty"`
+	ID int `json:"id,omitempty"`
 
 	// The L2 domains name.
 	Name string `json:"name,omitempty"`

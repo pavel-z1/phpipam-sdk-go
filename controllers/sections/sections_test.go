@@ -9,24 +9,24 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/pavel-z1/phpipam-sdk-go/controllers/subnets"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
-	"github.com/pavel-z1/phpipam-sdk-go/testacc"
+	"github.com/lucasdk3/phpipam-sdk-go/controllers/subnets"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/testacc"
 )
 
 var testListSectionsOutputExpected = []Section{
-	Section{
+	{
 		ID:          2,
 		Name:        "IPv6",
 		Description: "Section for IPv6 addresses",
 		Permissions: "{\"3\":\"1\",\"2\":\"2\"}",
 	},
-	Section{
+	{
 		ID:   3,
 		Name: "foobar",
 	},
-	Section{
+	{
 		ID:          1,
 		Name:        "Customers",
 		Description: "Section for customers",
@@ -40,17 +40,17 @@ const testListSectionsOutputJSON = `
   "success": true,
   "data": [
     {
-      "id": "2",
+      "id": 2,
       "name": "IPv6",
       "description": "Section for IPv6 addresses",
-      "masterSection": "0",
+      "masterSection": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
       "strictMode": "0",
       "subnetOrdering": null,
       "order": null,
       "editDate": null,
-      "showVLAN": "0",
-      "showVRF": "0",
+      "showVLAN": 0,
+      "showVRF": 0,
       "DNS": null,
       "links": [
         {
@@ -60,17 +60,17 @@ const testListSectionsOutputJSON = `
       ]
     },
     {
-      "id": "3",
+      "id": 3,
       "name": "foobar",
       "description": null,
-      "masterSection": "0",
+      "masterSection": 0,
       "permissions": null,
       "strictMode": "0",
       "subnetOrdering": null,
       "order": null,
       "editDate": null,
-      "showVLAN": "0",
-      "showVRF": "0",
+      "showVLAN": 0,
+      "showVRF": 0,
       "DNS": null,
       "links": [
         {
@@ -80,17 +80,17 @@ const testListSectionsOutputJSON = `
       ]
     },
     {
-      "id": "1",
+      "id": 1,
       "name": "Customers",
       "description": "Section for customers",
-      "masterSection": "0",
+      "masterSection": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
       "strictMode": "0",
       "subnetOrdering": null,
       "order": null,
       "editDate": null,
-      "showVLAN": "0",
-      "showVRF": "0",
+      "showVLAN": 0,
+      "showVRF": 0,
       "DNS": null,
       "links": [
         {
@@ -130,17 +130,17 @@ const testGetSectionOutputJSON = `
   "code": 200,
   "success": true,
   "data": {
-    "id": "1",
+    "id": 1,
     "name": "Customers",
     "description": "Section for customers",
-    "masterSection": "0",
+    "masterSection": 0,
     "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
     "strictMode": "0",
     "subnetOrdering": null,
     "order": null,
     "editDate": null,
-    "showVLAN": "0",
-    "showVRF": "0",
+    "showVLAN": 0,
+    "showVRF": 0,
     "DNS": null,
     "links": [
       {
@@ -171,28 +171,28 @@ const testGetSubnetsInSectionOutputJSON = `
   "success": true,
   "data": [
     {
-      "id": "5",
+      "id": 5,
       "subnet": "0.0.0.0",
       "mask": "",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "My folder",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "0",
-      "allowRequests": "0",
-      "vlanId": "0",
-      "showName": "0",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 0,
+      "allowRequests": 0,
+      "vlanId": 0,
+      "showName": 0,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "1",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 1,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -202,28 +202,28 @@ const testGetSubnetsInSectionOutputJSON = `
       ]
     },
     {
-      "id": "2",
+      "id": 2,
       "subnet": "10.10.0.0",
       "mask": "16",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "Business customers",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "0",
-      "allowRequests": "1",
-      "vlanId": "0",
-      "showName": "1",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 0,
+      "allowRequests": 1,
+      "vlanId": 0,
+      "showName": 1,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -233,28 +233,28 @@ const testGetSubnetsInSectionOutputJSON = `
       ]
     },
     {
-      "id": "3",
+      "id": 3,
       "subnet": "10.10.1.0",
       "mask": "24",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "Customer 1",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "2",
-      "allowRequests": "1",
-      "vlanId": "0",
-      "showName": "1",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 2,
+      "allowRequests": 1,
+      "vlanId": 0,
+      "showName": 1,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -264,28 +264,28 @@ const testGetSubnetsInSectionOutputJSON = `
       ]
     },
     {
-      "id": "4",
+      "id": 4,
       "subnet": "10.10.2.0",
       "mask": "24",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "Customer 2",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "2",
-      "allowRequests": "1",
-      "vlanId": "0",
-      "showName": "1",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 2,
+      "allowRequests": 1,
+      "vlanId": 0,
+      "showName": 1,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -295,28 +295,28 @@ const testGetSubnetsInSectionOutputJSON = `
       ]
     },
     {
-      "id": "6",
+      "id": 6,
       "subnet": "10.65.22.0",
       "mask": "24",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": "DHCP range",
       "firewallAddressObject": null,
-      "vrfId": "0",
-      "masterSubnetId": "5",
-      "allowRequests": "0",
-      "vlanId": "0",
-      "showName": "1",
-      "device": "0",
+      "vrfId": 0,
+      "masterSubnetId": 5,
+      "allowRequests": 0,
+      "vlanId": 0,
+      "showName": 1,
+      "device": 0,
       "permissions": "{\"3\":\"1\",\"2\":\"2\"}",
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive": 0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -330,7 +330,7 @@ const testGetSubnetsInSectionOutputJSON = `
 `
 
 var testGetSubnetsInSectionExpected = []subnets.Subnet{
-	subnets.Subnet{
+	{
 		ID:             5,
 		SubnetAddress:  "0.0.0.0",
 		Mask:           0,
@@ -342,7 +342,7 @@ var testGetSubnetsInSectionExpected = []subnets.Subnet{
 		Permissions:    "{\"3\":\"1\",\"2\":\"2\"}",
 		IsFolder:       true,
 	},
-	subnets.Subnet{
+	{
 		ID:             2,
 		SubnetAddress:  "10.10.0.0",
 		Mask:           16,
@@ -353,7 +353,7 @@ var testGetSubnetsInSectionExpected = []subnets.Subnet{
 		ShowName:       true,
 		Permissions:    "{\"3\":\"1\",\"2\":\"2\"}",
 	},
-	subnets.Subnet{
+	{
 		ID:             3,
 		SubnetAddress:  "10.10.1.0",
 		Mask:           24,
@@ -364,7 +364,7 @@ var testGetSubnetsInSectionExpected = []subnets.Subnet{
 		ShowName:       true,
 		Permissions:    "{\"3\":\"1\",\"2\":\"2\"}",
 	},
-	subnets.Subnet{
+	{
 		ID:             4,
 		SubnetAddress:  "10.10.2.0",
 		Mask:           24,
@@ -375,7 +375,7 @@ var testGetSubnetsInSectionExpected = []subnets.Subnet{
 		ShowName:       true,
 		Permissions:    "{\"3\":\"1\",\"2\":\"2\"}",
 	},
-	subnets.Subnet{
+	{
 		ID:             6,
 		SubnetAddress:  "10.65.22.0",
 		Mask:           24,
@@ -400,16 +400,16 @@ const testUpdateSectionOutputJSON = `
 }
 `
 
-var testDeleteSectionInput = Section{
-	ID: 3,
-}
+// var testDeleteSectionInput = Section{
+// 	ID: 3,
+// }
 
-const testDeleteSectionOutputJSON = `
-{
-  "code": 200,
-  "success": true
-}
-`
+// const testDeleteSectionOutputJSON = `
+// {
+//   "code": 200,
+//   "success": true
+// }
+// `
 
 func newHTTPTestServer(f func(w http.ResponseWriter, r *http.Request)) *httptest.Server {
 	ts := httptest.NewServer(http.HandlerFunc(f))

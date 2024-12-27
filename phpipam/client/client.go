@@ -8,9 +8,9 @@ import (
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/logfmt"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/request"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/request"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 // Client encompasses a generic client object that is further extended by

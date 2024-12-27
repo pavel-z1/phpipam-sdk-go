@@ -12,7 +12,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/logfmt"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
 
 // APIResponse represents a PHPIPAM response body. Both successful and

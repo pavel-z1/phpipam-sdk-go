@@ -4,17 +4,27 @@ package subnets
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/pavel-z1/phpipam-sdk-go/controllers/addresses"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/client"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/controllers/addresses"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/client"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
 )
+
+func convertFloatToInt(m map[string]interface{}) map[string]interface{} {
+	for k, v := range m {
+		if f, ok := v.(float64); ok {
+			m[k] = int(f)
+		}
+	}
+	return m
+}
 
 // Subnet represents a PHPIPAM subnet.
 type Subnet struct {
 	// The subnet ID.
-	ID int `json:"id,string,omitempty"`
+	ID int `json:"id,omitempty"`
 
 	// The subnet address, in dotted quad format (i.e. A.B.C.D).
 	SubnetAddress string `json:"subnet,omitempty"`
@@ -26,66 +36,66 @@ type Subnet struct {
 	Description string `json:"description,omitempty"`
 
 	// The section ID to add the subnet to (required when adding).
-	SectionID int `json:"sectionId,string,omitempty"`
+	SectionID int `json:"sectionId,omitempty"`
 
 	// The ID of a linked IPv6 subnet.
-	LinkedSubnet int `json:"linked_subnet,string,omitempty"`
+	LinkedSubnet int `json:"linked_subnet,omitempty"`
 
 	// The ID of the VLAN that this subnet belongs to.
-	VLANID int `json:"vlanId,string,omitempty"`
+	VLANID int `json:"vlanId,omitempty"`
 
 	// The ID of the VRF this subnet belongs to.
-	VRFID int `json:"vrfId,string,omitempty"`
+	VRFID int `json:"vrfId,omitempty"`
 
 	// The parent subnet ID if this is a nested subnet.
-	MasterSubnetID int `json:"masterSubnetId,string,omitempty"`
+	MasterSubnetID int `json:"masterSubnetId,omitempty"`
 
 	// The ID of the nameserver to attache the subnet to.
-	NameserverID int `json:"nameserverId,string,omitempty"`
+	NameserverID int `json:"nameserverId,omitempty"`
 
 	// The ID and IPs of the nameservers for the subnet
 	Nameservers map[string]interface{} `json:"nameservers,omitempty"`
 
 	// true if the name should be displayed in listing instead of the subnet
 	// address.
-	ShowName phpipam.BoolIntString `json:"showName,omitempty"`
+	ShowName phpipam.BoolInt `json:"showName,omitempty"`
 
 	// A JSON object, stringified, that represents the permissions for this
 	// section.
 	Permissions string `json:"permissions,omitempty"`
 
 	// Controls if PTR records should be created for the subnet.
-	DNSRecursive phpipam.BoolIntString `json:"DNSrecursive,omitempty"`
+	DNSRecursive phpipam.BoolInt `json:"DNSrecursive,omitempty"`
 
 	// Controls if DNS hostname records are displayed.
-	DNSRecords phpipam.BoolIntString `json:"DNSrecords,omitempty"`
+	DNSRecords phpipam.BoolInt `json:"DNSrecords,omitempty"`
 
 	// Controls if IP requests are allowed for the subnet.
-	AllowRequests phpipam.BoolIntString `json:"allowRequests,omitempty"`
+	AllowRequests phpipam.BoolInt `json:"allowRequests,omitempty"`
 
 	// The ID of the scan agent to use for the subnet.
-	ScanAgent int `json:"scanAgent,string,omitempty"`
+	ScanAgent int `json:"scanAgent,omitempty"`
 
 	// Controls if the subnet should be included in status checks.
-	PingSubnet phpipam.BoolIntString `json:"pingSubnet,omitempty"`
+	PingSubnet phpipam.BoolInt `json:"pingSubnet,omitempty"`
 
 	// Controls if new hosts should be discovered for new host scans.
-	DiscoverSubnet phpipam.BoolIntString `json:"discoverSubnet,omitempty"`
+	DiscoverSubnet phpipam.BoolInt `json:"discoverSubnet,omitempty"`
 
 	// Controls if we are adding a subnet or folder.
-	IsFolder phpipam.BoolIntString `json:"isFolder,omitempty"`
+	IsFolder phpipam.BoolInt `json:"isFolder,omitempty"`
 
 	// Marks the subnet as permitting allocation of the network and broadcast addresses.
-	IsPool phpipam.BoolIntString `json:"isPool,omitempty"`
+	IsPool phpipam.BoolInt `json:"isPool,omitempty"`
 
 	// Marks the subnet as used.
-	IsFull phpipam.BoolIntString `json:"isFull,omitempty"`
+	IsFull phpipam.BoolInt `json:"isFull,omitempty"`
 
 	// The threshold of the subnet.
-	Threshold int `json:"threshold,string,omitempty"`
+	Threshold int `json:"threshold,omitempty"`
 
 	// The location index of the subnet.
-	Location int `json:"location,string,omitempty"`
+	Location int `json:"location,omitempty"`
 
 	// The date of the last edit to this resource.
 	EditDate string `json:"editDate,omitempty"`
@@ -94,7 +104,7 @@ type Subnet struct {
 	Gateway map[string]interface{} `json:"gateway,omitempty"`
 
 	// Gateway IP ID
-	GatewayID string `json:"gatewayId,omitempty"`
+	GatewayID int `json:"gatewayId,omitempty"`
 
 	// A map[string]interface{} of custom fields to set on the resource. Note
 	// that this functionality requires PHPIPAM 1.3 or higher with the "Nest
@@ -104,7 +114,7 @@ type Subnet struct {
 	CustomFields map[string]interface{} `json:"custom_fields,omitempty"`
 
 	// Controls enabling resolve DNS function.
-	ResolveDNS phpipam.BoolIntString `json:"resolveDNS,omitempty"`
+	ResolveDNS phpipam.BoolInt `json:"resolveDNS,omitempty"`
 }
 
 // Controller is the base client for the Subnets controller.
@@ -152,6 +162,19 @@ func (c *Controller) GetSubnetsByCIDR(cidr string) (out []Subnet, err error) {
 
 func (c *Controller) GetSubnetsByCIDRAndSection(cidr string, section_id int) (out []Subnet, err error) {
 	err = c.SendRequest("GET", fmt.Sprintf("/subnets/cidr/%s/?filter_by=sectionId&filter_value=%d", cidr, section_id), &struct{}{}, &out)
+	return
+}
+
+// GetSubnetById GETs a subnet via vlan id.
+//
+// The function's name reflects the fact that an array of subnets is returned
+// through the API, although it remains unclear how to actually query this
+// method in a way that would return multiple results. Using a VLAN ID
+// will not return multiple results
+
+func (c *Controller) GetSubnetsByVLAN(id int) (out []Subnet, err error) {
+	log.Println(id)
+	err = c.SendRequest("GET", fmt.Sprintf("/tools/vlans/%d/subnets/", id), &struct{}{}, &out)
 	return
 }
 

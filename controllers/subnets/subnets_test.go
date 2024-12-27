@@ -9,10 +9,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pavel-z1/phpipam-sdk-go/controllers/addresses"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
-	"github.com/pavel-z1/phpipam-sdk-go/testacc"
+	"github.com/google/go-cmp/cmp"
+	"github.com/lucasdk3/phpipam-sdk-go/controllers/addresses"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/testacc"
 )
 
 var testCreateSubnetInput = Subnet{
@@ -41,7 +42,7 @@ const testCreateFirstFreeSubnetOutputJSON = `
   "code": 201,
   "success": true,
   "message": "Subnet created",
-  "id": "10",
+  "id": 10,
   "data": "10.10.4.0/25"
 }
 `
@@ -52,13 +53,35 @@ var testGetSubnetByIDOutputExpected = Subnet{
 	Mask:           24,
 	SectionID:      1,
 	MasterSubnetID: 2,
+	LinkedSubnet:   0,
+	VLANID:         0,
+	VRFID:          0,
+	NameserverID:   0,
+	ShowName:       false,
+	Permissions:    "",
+	DNSRecursive:   false,
+	DNSRecords:     false,
+	AllowRequests:  false,
+	ScanAgent:      0,
+	PingSubnet:     false,
+	DiscoverSubnet: false,
+	IsFolder:       false,
+	IsPool:         false,
+	IsFull:         false,
+	Threshold:      0,
+	Location:       0,
+	EditDate:       "",
+	GatewayID:      0,
+	Gateway:        map[string]interface{}(nil),
+	CustomFields:   map[string]interface{}(nil),
 	Nameservers: map[string]interface{}{
-		"id":          "0",
+		"id":          int(0),
 		"name":        "mynameserver.example.com",
 		"namesrv1":    "1.2.3.4",
 		"description": "a nameserver description",
 		"permissions": "1",
 	},
+	ResolveDNS: false,
 }
 
 const testGetSubnetByIDOutputJSON = `
@@ -66,35 +89,35 @@ const testGetSubnetByIDOutputJSON = `
   "code": 200,
   "success": true,
   "data": {
-    "id": "8",
+    "id": 8,
     "subnet": "10.10.3.0",
     "mask": "24",
-    "sectionId": "1",
+    "sectionId": 1,
     "description": null,
     "firewallAddressObject": null,
     "vrfId": null,
-    "masterSubnetId": "2",
-    "allowRequests": "0",
+    "masterSubnetId": 2,
+    "allowRequests": 0,
     "vlanId": null,
-    "showName": "0",
-    "device": "0",
+    "showName": 0,
+    "device": 0,
     "permissions": null,
-    "pingSubnet": "0",
-    "discoverSubnet": "0",
-    "DNSrecursive": "0",
-    "DNSrecords": "0",
-    "nameserverId": "0",
+    "pingSubnet": 0,
+    "discoverSubnet": 0,
+    "DNSrecursive": 0,
+    "DNSrecords": 0,
+    "nameserverId": 0,
     "nameservers": {
-        "id": "0",
+        "id": 0,
         "name": "mynameserver.example.com",
         "namesrv1": "1.2.3.4",
         "description": "a nameserver description",
         "permissions": "1"
     },
     "scanAgent": null,
-    "isFolder": "0",
-    "isFull": "0",
-    "tag": "2",
+    "isFolder": 0,
+    "isFull": 0,
+    "tag": 2,
     "editDate": null,
     "links": [
       {
@@ -169,7 +192,7 @@ const testGetSubnetByIDOutputJSON = `
 `
 
 var testGetSubnetsByCIDROutputExpected = []Subnet{
-	Subnet{
+	{
 		ID:             8,
 		SubnetAddress:  "10.10.3.0",
 		Mask:           24,
@@ -184,28 +207,28 @@ const testGetSubnetsByCIDROutputJSON = `
   "success": true,
   "data": [
     {
-      "id": "8",
+      "id": 8,
       "subnet": "10.10.3.0",
       "mask": "24",
-      "sectionId": "1",
+      "sectionId": 1,
       "description": null,
       "firewallAddressObject": null,
       "vrfId": null,
-      "masterSubnetId": "2",
-      "allowRequests": "0",
+      "masterSubnetId": 2,
+      "allowRequests": 0,
       "vlanId": null,
-      "showName": "0",
-      "device": "0",
+      "showName": 0,
+      "device": 0,
       "permissions": null,
-      "pingSubnet": "0",
-      "discoverSubnet": "0",
-      "DNSrecursive": "0",
-      "DNSrecords": "0",
-      "nameserverId": "0",
+      "pingSubnet": 0,
+      "discoverSubnet": 0,
+      "DNSrecursive":0,
+      "DNSrecords": 0,
+      "nameserverId": 0,
       "scanAgent": null,
-      "isFolder": "0",
-      "isFull": "0",
-      "tag": "2",
+      "isFolder": 0,
+      "isFull": 0,
+      "tag": 2,
       "editDate": null,
       "links": [
         {
@@ -237,7 +260,7 @@ const testGetFirstFreeAddressOutputJSON = `
 `
 
 var testGetAddressesInSubnetExpected = []addresses.Address{
-	addresses.Address{
+	{
 		ID:          1,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.3",
@@ -247,7 +270,7 @@ var testGetAddressesInSubnetExpected = []addresses.Address{
 		Tag:         2,
 		LastSeen:    "1970-01-01 00:00:01",
 	},
-	addresses.Address{
+	{
 		ID:          2,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.4",
@@ -257,7 +280,7 @@ var testGetAddressesInSubnetExpected = []addresses.Address{
 		Tag:         2,
 		LastSeen:    "1970-01-01 00:00:01",
 	},
-	addresses.Address{
+	{
 		ID:          3,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.5",
@@ -267,7 +290,7 @@ var testGetAddressesInSubnetExpected = []addresses.Address{
 		Tag:         3,
 		LastSeen:    "1970-01-01 00:00:01",
 	},
-	addresses.Address{
+	{
 		ID:          4,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.6",
@@ -277,7 +300,7 @@ var testGetAddressesInSubnetExpected = []addresses.Address{
 		Tag:         3,
 		LastSeen:    "1970-01-01 00:00:01",
 	},
-	addresses.Address{
+	{
 		ID:          5,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.245",
@@ -294,22 +317,22 @@ const testGetAddressesInSubnetJSON = `
   "success": true,
   "data": [
     {
-      "id": "1",
-      "subnetId": "3",
+      "id": 1,
+      "subnetId": 3,
       "ip": "10.10.1.3",
       "is_gateway": "0",
       "description": "Server1",
       "hostname": "server1.cust1.local",
       "mac": null,
       "owner": null,
-      "tag": "2",
+      "tag": 2,
       "deviceId": null,
       "port": null,
       "note": null,
 			"lastSeen": "1970-01-01 00:00:01",
       "excludePing": "0",
-      "PTRignore": "0",
-      "PTR": "0",
+      "PTRignore": 0,
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -320,22 +343,22 @@ const testGetAddressesInSubnetJSON = `
       ]
     },
     {
-      "id": "2",
-      "subnetId": "3",
+      "id": 2,
+      "subnetId": 3,
       "ip": "10.10.1.4",
       "is_gateway": "0",
       "description": "Server2",
       "hostname": "server2.cust1.local",
       "mac": null,
       "owner": null,
-      "tag": "2",
+      "tag": 2,
       "deviceId": null,
       "port": null,
       "note": null,
 			"lastSeen": "1970-01-01 00:00:01",
       "excludePing": "0",
-      "PTRignore": "0",
-      "PTR": "0",
+      "PTRignore": 0,
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -346,22 +369,22 @@ const testGetAddressesInSubnetJSON = `
       ]
     },
     {
-      "id": "3",
-      "subnetId": "3",
+      "id": 3,
+      "subnetId": 3,
       "ip": "10.10.1.5",
       "is_gateway": "0",
       "description": "Server3",
       "hostname": "server3.cust1.local",
       "mac": null,
       "owner": null,
-      "tag": "3",
+      "tag": 3,
       "deviceId": null,
       "port": null,
       "note": null,
 			"lastSeen": "1970-01-01 00:00:01",
       "excludePing": "0",
-      "PTRignore": "0",
-      "PTR": "0",
+      "PTRignore": 0,
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -372,22 +395,22 @@ const testGetAddressesInSubnetJSON = `
       ]
     },
     {
-      "id": "4",
-      "subnetId": "3",
+      "id": 4,
+      "subnetId": 3,
       "ip": "10.10.1.6",
       "is_gateway": "0",
       "description": "Server4",
       "hostname": "server4.cust1.local",
       "mac": null,
       "owner": null,
-      "tag": "3",
+      "tag": 3,
       "deviceId": null,
       "port": null,
       "note": null,
 			"lastSeen": "1970-01-01 00:00:01",
       "excludePing": "0",
-      "PTRignore": "0",
-      "PTR": "0",
+      "PTRignore": 0,
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -398,22 +421,22 @@ const testGetAddressesInSubnetJSON = `
       ]
     },
     {
-      "id": "5",
-      "subnetId": "3",
+      "id": 5,
+      "subnetId": 3,
       "ip": "10.10.1.245",
       "is_gateway": "0",
       "description": "Gateway",
       "hostname": null,
       "mac": null,
       "owner": null,
-      "tag": "2",
+      "tag": 2,
       "deviceId": null,
       "port": null,
       "note": null,
 			"lastSeen": "1970-01-01 00:00:01",
       "excludePing": "0",
-      "PTRignore": "0",
-      "PTR": "0",
+      "PTRignore": 0,
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -428,14 +451,14 @@ const testGetAddressesInSubnetJSON = `
 `
 
 var testGetSubnetCustomFieldsSchemaExpected = map[string]phpipam.CustomField{
-	"CustomTestSubnets": phpipam.CustomField{
+	"CustomTestSubnets": {
 		Name:    "CustomTestSubnets",
 		Type:    "varchar(255)",
 		Comment: "Test field for subnets controller",
 		Null:    "YES",
 		Default: "",
 	},
-	"CustomTestSubnets2": phpipam.CustomField{
+	"CustomTestSubnets2": {
 		Name:    "CustomTestSubnets2",
 		Type:    "varchar(255)",
 		Comment: "Test field for subnets controller (second field)",
@@ -575,9 +598,12 @@ func TestGetSubnetByID(t *testing.T) {
 		t.Fatalf("Bad: %s", err)
 	}
 
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("Expected %#v, got %#v", expected, actual)
+	actual.Nameservers = convertFloatToInt(actual.Nameservers)
+
+	if !cmp.Equal(expected, actual) {
+		t.Fatalf("Expected: %v, got: %v, diff: %v", expected, actual, cmp.Diff(expected, actual))
 	}
+
 }
 
 func TestGetSubnetsByCIDR(t *testing.T) {
@@ -776,6 +802,19 @@ func testAccSubnetCRUDReadByID(t *testing.T, sess *session.Session, s Subnet) {
 	}
 }
 
+func testAccSubnetReadByVlan(t *testing.T, sess *session.Session, vlanId int) {
+	c := NewController(sess)
+
+	out, err := c.GetSubnetsByVLAN(vlanId)
+	if err != nil {
+		t.Fatalf("Can't find subnet by Vlan: %s", err)
+	}
+
+	if !reflect.DeepEqual(vlanId, out) {
+		t.Fatalf("ReadByVlan: Expected %#v, got %#v", vlanId, out)
+	}
+}
+
 // testAccSubnetCRUDUpdate tests the update part of the subnets controller
 // acceptance test.
 func testAccSubnetCRUDUpdate(t *testing.T, sess *session.Session, s Subnet) {
@@ -953,4 +992,13 @@ func TestAccSubnetCustomFieldUpdateRead(t *testing.T) {
 
 	// clean up
 	testAccSubnetCRUDDelete(t, sess, subnet)
+}
+
+func TestAccSubnetGetFromVlan(t *testing.T) {
+	testacc.VetAccConditions(t)
+	testacc.SkipIfCustomNested(t)
+
+	sess := session.NewSession()
+
+	testAccSubnetReadByVlan(t, sess, 10)
 }

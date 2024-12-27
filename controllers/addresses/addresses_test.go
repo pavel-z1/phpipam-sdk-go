@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
-	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
-	"github.com/pavel-z1/phpipam-sdk-go/testacc"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam"
+	"github.com/lucasdk3/phpipam-sdk-go/phpipam/session"
+	"github.com/lucasdk3/phpipam-sdk-go/testacc"
 )
 
 var testCreateAddressInput = Address{
@@ -41,22 +41,22 @@ const testGetAddressByIDOutputJSON = `
   "code": 200,
   "success": true,
   "data": {
-    "id": "11",
-    "subnetId": "3",
+    "id": 11,
+    "subnetId": 3,
     "ip": "10.10.1.10",
     "is_gateway": null,
     "description": "foobar",
     "hostname": null,
     "mac": null,
     "owner": null,
-    "tag": "2",
+    "tag": 2,
     "deviceId": null,
     "port": null,
     "note": null,
     "lastSeen": null,
     "excludePing": null,
     "PTRignore": null,
-    "PTR": "0",
+    "PTR": 0,
     "firewallAddressObject": null,
     "editDate": null,
     "links": [
@@ -83,7 +83,7 @@ const testGetAddressByIDOutputJSON = `
 `
 
 var testGetAddressesByIPOutputExpected = []Address{
-	Address{
+	{
 		ID:          11,
 		SubnetID:    3,
 		IPAddress:   "10.10.1.10",
@@ -98,22 +98,22 @@ const testGetAddressesByIPOutputJSON = `
   "success": true,
   "data": [
     {
-      "id": "11",
-      "subnetId": "3",
+      "id": 11,
+      "subnetId": 3,
       "ip": "10.10.1.10",
       "is_gateway": null,
       "description": "foobar",
       "hostname": null,
       "mac": null,
       "owner": null,
-      "tag": "2",
+      "tag": 2,
       "deviceId": null,
       "port": null,
       "note": null,
       "lastSeen": null,
       "excludePing": null,
       "PTRignore": null,
-      "PTR": "0",
+      "PTR": 0,
       "firewallAddressObject": null,
       "editDate": null,
       "links": [
@@ -128,11 +128,10 @@ const testGetAddressesByIPOutputJSON = `
 `
 
 var testGetAddressesByIpInSubnetOutputExpected = Address{
-	ID:          11,
+	ID:          1,
 	SubnetID:    3,
 	IPAddress:   "10.10.1.10",
 	Description: "foobar",
-	
 }
 
 const testGetAddressesByIpInSubnetOutputJSON = `
@@ -141,8 +140,8 @@ const testGetAddressesByIpInSubnetOutputJSON = `
   "success": true,
   "data": 
 	{
-		"id": "11",
-		"subnetId": "3",
+		"id": 1,
+		"subnetId": 3,
 		"ip": "10.10.1.10",
 		"is_gateway": null,
 		"description": "foobar",
@@ -154,7 +153,7 @@ const testGetAddressesByIpInSubnetOutputJSON = `
 		"lastSeen": null,
 		"excludePing": null,
 		"PTRignore": null,
-		"PTR": "0",
+		"PTR": 0,
 		"firewallAddressObject": null,
 		"editDate": null,
 		"links": [
@@ -168,14 +167,14 @@ const testGetAddressesByIpInSubnetOutputJSON = `
 `
 
 var testGetAddressCustomFieldsSchemaExpected = map[string]phpipam.CustomField{
-	"CustomTestAddresses": phpipam.CustomField{
+	"CustomTestAddresses": {
 		Name:    "CustomTestAddresses",
 		Type:    "varchar(255)",
 		Comment: "Test field for addresses controller",
 		Null:    "YES",
 		Default: "",
 	},
-	"CustomTestAddresses2": phpipam.CustomField{
+	"CustomTestAddresses2": {
 		Name:    "CustomTestAddresses2",
 		Type:    "varchar(255)",
 		Comment: "Test field for addresses controller (second field)",
@@ -325,7 +324,7 @@ func TestGetAddressesByIpInSubnet(t *testing.T) {
 	client := NewController(sess)
 
 	expected := testGetAddressesByIpInSubnetOutputExpected
-	actual, err := client.GetAddressesByIpInSubnet("10.10.1.10/24",3)
+	actual, err := client.GetAddressesByIpInSubnet("10.10.1.10/24", 3)
 	if err != nil {
 		t.Fatalf("Bad: %s", err)
 	}
@@ -334,7 +333,6 @@ func TestGetAddressesByIpInSubnet(t *testing.T) {
 		t.Fatalf("Expected %#v, got %#v", expected, actual)
 	}
 }
-
 
 func TestGetAddressCustomFieldsSchema(t *testing.T) {
 	ts := httpOKTestServer(testGetAddressCustomFieldsSchemaJSON)
