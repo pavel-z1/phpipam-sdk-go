@@ -16,7 +16,7 @@ import (
 // subnetSearchResult is used internally to parse subnet search responses.
 type subnetSearchResult struct {
 	Subnets struct {
-		Code int             `json:"code"`
+		Code int             `json:"code,string"`
 		Data json.RawMessage `json:"data"`
 	} `json:"subnets"`
 }

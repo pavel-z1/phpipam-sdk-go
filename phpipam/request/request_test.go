@@ -78,6 +78,41 @@ func httpOKTestServer() *httptest.Server {
 	})
 }
 
+// nativeTypesResponseText is a response in the format returned by phpIPAM 1.6+
+// on PHP 8, where numbers and booleans are not stringified.
+const nativeTypesResponseText = `
+{
+  "code": 200,
+  "success": true,
+  "data": {
+    "id": 7,
+    "mask": 24,
+    "isFolder": false,
+    "isFull": true,
+    "vlanId": null,
+    "description": "native",
+    "custom_fields": {"custom_count": 3}
+  }
+}
+`
+
+type nativeTypesResponseData struct {
+	ID           int                    `json:"id,string"`
+	Mask         phpipam.JSONIntString  `json:"mask"`
+	IsFolder     phpipam.BoolIntString  `json:"isFolder"`
+	IsFull       phpipam.BoolIntString  `json:"isFull"`
+	VLANID       int                    `json:"vlanId,string"`
+	Description  string                 `json:"description"`
+	CustomFields map[string]interface{} `json:"custom_fields"`
+}
+
+func httpNativeTypesTestServer() *httptest.Server {
+	return newHTTPTestServer(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		http.Error(w, nativeTypesResponseText, http.StatusOK)
+	})
+}
+
 func phpipamConfig() phpipam.Config {
 	return phpipam.Config{
 		AppID:    "0123456789abcdefgh",
@@ -180,5 +215,30 @@ func TestRequestSendProtocolError(t *testing.T) {
 
 	if ok, _ := regexp.MatchString(expected, err.Error()); ok == false {
 		t.Fatalf("expected error to match %s, got %s", expected, err)
+	}
+}
+
+func TestRequestSendNativeTypes(t *testing.T) {
+	ts := httpNativeTypesTestServer()
+	defer ts.Close()
+	cfg := phpipamConfig()
+	cfg.Endpoint = ts.URL
+	in := struct{}{}
+	out := nativeTypesResponseData{}
+	r := testRequest(cfg, &in, &out)
+	if err := r.Send(); err != nil {
+		t.Fatalf("Unexpected request error: %s", err)
+	}
+
+	expected := nativeTypesResponseData{
+		ID:           7,
+		Mask:         24,
+		IsFolder:     false,
+		IsFull:       true,
+		Description:  "native",
+		CustomFields: map[string]interface{}{"custom_count": "3"},
+	}
+	if reflect.DeepEqual(expected, out) == false {
+		t.Fatalf("expected %#v, got %#v", expected, out)
 	}
 }

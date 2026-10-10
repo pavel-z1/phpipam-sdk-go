@@ -45,6 +45,19 @@ setting environment variable PHPIPAMSDK_LOGLEVEL to one of supported value:
 * error
 * fatal
 
+## A Note on PHP 8 and phpIPAM 1.6+
+
+When phpIPAM runs on PHP 8, the API returns numbers and booleans as native JSON
+types instead of strings. The SDK sends the `api-stringify-results` header to
+ask for the old format, and also converts any native values it receives, so it
+works against both older and newer phpIPAM installations.
+
+## A Note on Timeouts
+
+Each session reuses a single HTTP client. Requests time out after
+`phpipam.DefaultTimeout` (60 seconds), which can be changed with the `Timeout`
+field of `phpipam.Config`.
+
 ## License
 
 ```

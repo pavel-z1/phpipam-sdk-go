@@ -8,26 +8,30 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // The default PHPIPAM API endpoint.
 const defaultAPIAddress = "http://localhost/api"
 
+// DefaultTimeout is the HTTP request timeout used when Config.Timeout is not
+// set.
+const DefaultTimeout = 60 * time.Second
+
 // Config contains the configuration for connecting to the PHPIPAM API.
 //
-//
-// Supplying Configuration to Controllers
+// # Supplying Configuration to Controllers
 //
 // All controller constructors (ie: VLANs, subnets, addresses, etc) take zero or
 // more of these structs as configuration, like so:
 //
-//   cfg := phpipam.Config{
-//     Username:     "jdoe",
-//     Password:     "password",
-//     AppID:        "appid",
-//   }
-//   sess := session.New(cfg)
-//   ctlr := ipaddr.New(sess)
+//	cfg := phpipam.Config{
+//	  Username:     "jdoe",
+//	  Password:     "password",
+//	  AppID:        "appid",
+//	}
+//	sess := session.New(cfg)
+//	ctlr := ipaddr.New(sess)
 //
 // Note that default options are set for EmailAddress, Password, and AppKey.
 // See the DefaultConfigProvider method for more details.
@@ -47,13 +51,17 @@ type Config struct {
 
 	// Allow HTTPS connection without verification issuer
 	Insecure bool
+
+	// The timeout for each HTTP request made to the API. Defaults to
+	// DefaultTimeout when zero.
+	Timeout time.Duration
 }
 
 // DefaultConfigProvider supplies a default configuration:
-//  * AppID defaults to PHPIPAM_APP_ID, if set, otherwise empty
-//  * Endpoint defaults to PHPIPAM_ENDPOINT_ADDR, otherwise http://localhost/api
-//  * Password defaults to PHPIPAM_PASSWORD, if set, otherwise empty
-//  * Username defaults to PHPIPAM_USER_NAME, if set, otherwise empty
+//   - AppID defaults to PHPIPAM_APP_ID, if set, otherwise empty
+//   - Endpoint defaults to PHPIPAM_ENDPOINT_ADDR, otherwise http://localhost/api
+//   - Password defaults to PHPIPAM_PASSWORD, if set, otherwise empty
+//   - Username defaults to PHPIPAM_USER_NAME, if set, otherwise empty
 //
 // This essentially loads an initial config state for any given
 // API service.
@@ -100,15 +108,18 @@ func (bis BoolIntString) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler for the BoolIntString type.
+//
+// Native JSON booleans and numbers (as returned by phpIPAM on PHP 8) are
+// accepted in addition to their stringified forms.
 func (bis *BoolIntString) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
+	s, err := unquoteScalar(b)
+	if err != nil {
 		return err
 	}
 	switch s {
-	case "0", "":
+	case "0", "", "false":
 		*bis = false
-	case "1":
+	case "1", "true":
 		*bis = true
 	default:
 		return &json.UnmarshalTypeError{
@@ -118,6 +129,27 @@ func (bis *BoolIntString) UnmarshalJSON(b []byte) error {
 	}
 
 	return nil
+}
+
+// unquoteScalar returns the string form of a JSON string, number, boolean or
+// null value. null is returned as the empty string.
+func unquoteScalar(b []byte) (string, error) {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return "", err
+	}
+	switch t := v.(type) {
+	case nil:
+		return "", nil
+	case string:
+		return t, nil
+	case bool, float64:
+		return string(b), nil
+	}
+	return "", &json.UnmarshalTypeError{
+		Value: string(b),
+		Type:  reflect.TypeOf(""),
+	}
 }
 
 // JSONIntString is a type for representing an IntString JSON value, but with
@@ -130,9 +162,12 @@ func (jis JSONIntString) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler for the JSONIntString type.
+//
+// Native JSON numbers (as returned by phpIPAM on PHP 8) are accepted in
+// addition to their stringified forms.
 func (jis *JSONIntString) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
+	s, err := unquoteScalar(b)
+	if err != nil {
 		return err
 	}
 	if s == "" {

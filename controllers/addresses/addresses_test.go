@@ -132,7 +132,6 @@ var testGetAddressesByIpInSubnetOutputExpected = Address{
 	SubnetID:    3,
 	IPAddress:   "10.10.1.10",
 	Description: "foobar",
-	
 }
 
 const testGetAddressesByIpInSubnetOutputJSON = `
@@ -325,7 +324,7 @@ func TestGetAddressesByIpInSubnet(t *testing.T) {
 	client := NewController(sess)
 
 	expected := testGetAddressesByIpInSubnetOutputExpected
-	actual, err := client.GetAddressesByIpInSubnet("10.10.1.10/24",3)
+	actual, err := client.GetAddressesByIpInSubnet("10.10.1.10/24", 3)
 	if err != nil {
 		t.Fatalf("Bad: %s", err)
 	}
@@ -334,7 +333,6 @@ func TestGetAddressesByIpInSubnet(t *testing.T) {
 		t.Fatalf("Expected %#v, got %#v", expected, actual)
 	}
 }
-
 
 func TestGetAddressCustomFieldsSchema(t *testing.T) {
 	ts := httpOKTestServer(testGetAddressCustomFieldsSchemaJSON)

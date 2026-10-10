@@ -93,8 +93,8 @@ func (c *Controller) CreateAddress(in Address) (message string, err error) {
 
 // CreateAddress creates a first free in subnet address by sending a POST request.
 func (c *Controller) CreateFirstFreeAddress(id int, in Address) (out string, err error) {
-        err = c.SendRequest("POST", fmt.Sprintf("/addresses/first_free/%d/", id), &in, &out)
-        return
+	err = c.SendRequest("POST", fmt.Sprintf("/addresses/first_free/%d/", id), &in, &out)
+	return
 }
 
 // GetAddressByID GETs an address via its ID.
@@ -114,9 +114,9 @@ func (c *Controller) GetAddressesByIP(ipaddr string) (out []Address, err error) 
 
 // GetAddressesByIP searches for an address by its IP with in given subnet
 // When having multiple subnets with same ip range this will return the address in the given subnet
-// Those subnet may not talk to each other but still exist under on phpIPAM instance especially on ones migrated from previous versions 
-func (c *Controller) GetAddressesByIpInSubnet(ipaddr string,subnetID int) (out Address, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/addresses/%s/%d", ipaddr,subnetID), &struct{}{}, &out)
+// Those subnet may not talk to each other but still exist under on phpIPAM instance especially on ones migrated from previous versions
+func (c *Controller) GetAddressesByIpInSubnet(ipaddr string, subnetID int) (out Address, err error) {
+	err = c.SendRequest("GET", fmt.Sprintf("/addresses/%s/%d", ipaddr, subnetID), &struct{}{}, &out)
 	return
 }
 

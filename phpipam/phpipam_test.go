@@ -2,6 +2,7 @@ package phpipam
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"testing"
 )
@@ -102,10 +103,11 @@ func TestBoolIntStringUnmarshalJSONError(t *testing.T) {
 		t.Fatalf("Expected error, got none")
 	}
 
-	expected := "json: cannot unmarshal bool into Go struct field testBoolIntStringType.foo of type string"
-	actual := err.Error()
-	if expected != actual {
-		t.Fatalf("Expected %s, got %s", expected, actual)
+	// The error text produced by encoding/json differs between Go versions, so
+	// check the error type and value instead.
+	var typeErr *json.UnmarshalTypeError
+	if !errors.As(err, &typeErr) || typeErr.Value != "bool" {
+		t.Fatalf("Expected an UnmarshalTypeError for value bool, got %#v", err)
 	}
 }
 
@@ -176,10 +178,11 @@ func TestJSONIntStringUnmarshalJSONError(t *testing.T) {
 		t.Fatalf("Expected error, got none")
 	}
 
-	expected := "json: cannot unmarshal int into Go struct field testJSONIntStringType.foo of type string"
-	actual := err.Error()
-	if expected != actual {
-		t.Fatalf("Expected %s, got %s", expected, actual)
+	// The error text produced by encoding/json differs between Go versions, so
+	// check the error type and value instead.
+	var typeErr *json.UnmarshalTypeError
+	if !errors.As(err, &typeErr) || typeErr.Value != "int" {
+		t.Fatalf("Expected an UnmarshalTypeError for value int, got %#v", err)
 	}
 }
 
@@ -210,5 +213,41 @@ func TestJSONIntStringMarshalJSONOmitEmpty(t *testing.T) {
 	actual := string(b)
 	if expected != actual {
 		t.Fatalf("Expected %s, got %s", expected, actual)
+	}
+}
+
+func TestBoolIntStringUnmarshalJSONNative(t *testing.T) {
+	cases := map[string]BoolIntString{
+		`{"foo":true}`:  true,
+		`{"foo":false}`: false,
+		`{"foo":1}`:     true,
+		`{"foo":0}`:     false,
+		`{"foo":null}`:  false,
+	}
+	for in, expected := range cases {
+		var actual testBoolIntStringType
+		if err := json.Unmarshal([]byte(in), &actual); err != nil {
+			t.Fatalf("Bad (%s): %s", in, err)
+		}
+		if actual.Foo != expected {
+			t.Fatalf("%s: expected %t, got %t", in, expected, actual.Foo)
+		}
+	}
+}
+
+func TestJSONIntStringUnmarshalJSONNative(t *testing.T) {
+	cases := map[string]JSONIntString{
+		`{"foo":24}`:   24,
+		`{"foo":0}`:    0,
+		`{"foo":null}`: 0,
+	}
+	for in, expected := range cases {
+		var actual testJSONIntStringType
+		if err := json.Unmarshal([]byte(in), &actual); err != nil {
+			t.Fatalf("Bad (%s): %s", in, err)
+		}
+		if actual.Foo != expected {
+			t.Fatalf("%s: expected %d, got %d", in, expected, actual.Foo)
+		}
 	}
 }
