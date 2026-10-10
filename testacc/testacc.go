@@ -24,10 +24,10 @@ func SkipIfCustomNested(t *testing.T) {
 // PanicIfMissingEnv is designed to panic if the following environment variables
 // are not set:
 //
-//  * PHPIPAM_APP_ID
-//  * PHPIPAM_ENDPOINT_ADDR
-//  * PHPIPAM_PASSWORD
-//  * PHPIPAM_USER_NAME
+//   - PHPIPAM_APP_ID
+//   - PHPIPAM_ENDPOINT_ADDR
+//   - PHPIPAM_PASSWORD
+//   - PHPIPAM_USER_NAME
 //
 // Acceptance tests cannot continue if these are not set so there is no point
 // in continuing.

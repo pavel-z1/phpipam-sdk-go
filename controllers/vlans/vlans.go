@@ -52,6 +52,12 @@ func NewController(sess *session.Session) *Controller {
 	return c
 }
 
+// ListVLANs lists all VLANs.
+func (c *Controller) ListVLANs() (out []VLAN, err error) {
+	err = c.SendRequest("GET", "/vlans/", &struct{}{}, &out)
+	return
+}
+
 // CreateVLAN creates a VLAN by sending a POST request.
 func (c *Controller) CreateVLAN(in VLAN) (message string, err error) {
 	err = c.SendRequest("POST", "/vlans/", &in, &message)
@@ -76,8 +82,8 @@ func (c *Controller) GetVLANsByNumber(id int) (out []VLAN, err error) {
 }
 
 func (c *Controller) GetVLANsByNumberAndDomainID(vlan_id int, domain_id int) (out []VLAN, err error) {
-        err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/?filter_by=domainId&filter_value=%d", vlan_id, domain_id), &struct{}{}, &out)
-        return
+	err = c.SendRequest("GET", fmt.Sprintf("/vlans/search/%d/?filter_by=domainId&filter_value=%d", vlan_id, domain_id), &struct{}{}, &out)
+	return
 }
 
 // GetVLANCustomFieldsSchema GETs the custom fields for the vlans controller via

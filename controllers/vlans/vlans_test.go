@@ -496,3 +496,28 @@ func TestAccVLANCustomFieldUpdateRead(t *testing.T) {
 	// clean up
 	testAccVLANCRUDDelete(t, sess, vlan)
 }
+
+func TestListVLANs(t *testing.T) {
+	var uri string
+	ts := newHTTPTestServer(func(w http.ResponseWriter, r *http.Request) {
+		uri = r.URL.RequestURI()
+		w.Header().Add("Content-Type", "application/json")
+		http.Error(w, testGetVLANsByNumberOutputJSON, http.StatusOK)
+	})
+	defer ts.Close()
+	sess := fullSessionConfig()
+	sess.Config.Endpoint = ts.URL
+	client := NewController(sess)
+
+	expected := testGetVLANsByNumberOutputExpected
+	actual, err := client.ListVLANs()
+	if err != nil {
+		t.Fatalf("Bad: %s", err)
+	}
+	if uri != "/0123456789abcdefgh/vlans/" {
+		t.Fatalf("Expected request to /0123456789abcdefgh/vlans/, got %s", uri)
+	}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("Expected %#v, got %#v", expected, actual)
+	}
+}

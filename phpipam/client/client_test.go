@@ -190,6 +190,32 @@ var testGetCustomFieldsRequestExpected = map[string]interface{}{
 	"Projects": "bazboop",
 }
 
+const testGetCustomFieldsFlatResponseText = `
+{
+  "code": 200,
+  "success": true,
+  "data": {
+    "id": "3",
+    "description": "Customer 1",
+    "Projects": "bazboop"
+  }
+}
+`
+
+const testGetCustomFieldsNestedResponseText = `
+{
+  "code": 200,
+  "success": true,
+  "data": {
+    "id": "3",
+    "description": "Customer 1",
+    "custom_fields": {
+      "Projects": "bazboop"
+    }
+  }
+}
+`
+
 const testUpdateCustomFieldsRequestResponseText = `
 {
   "code": 200,
@@ -442,5 +468,54 @@ func TestUpdateCustomFieldsRequestIllegalField(t *testing.T) {
 
 	if err.Error() != updateCustomFieldsErrorExpectedResponse {
 		t.Fatalf("Expected %q, got %q", updateCustomFieldsErrorExpectedResponse, err.Error())
+	}
+}
+
+func TestGetCustomFieldsRequest(t *testing.T) {
+	for name, body := range map[string]string{
+		"flat":   testGetCustomFieldsFlatResponseText,
+		"nested": testGetCustomFieldsNestedResponseText,
+	} {
+		t.Run(name, func(t *testing.T) {
+			ts := newHTTPTestServer(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Add("Content-Type", "application/json")
+				http.Error(w, body, http.StatusOK)
+			})
+			defer ts.Close()
+			sess := fullSessionConfig()
+			sess.Config.Endpoint = ts.URL
+			client := NewClient(sess)
+
+			actual, err := client.getCustomFieldsRequest(3, "subnets", testCustomFieldsSchemaExpected)
+			if err != nil {
+				t.Fatalf("Bad: %s", err)
+			}
+			if !reflect.DeepEqual(testGetCustomFieldsRequestExpected, actual) {
+				t.Fatalf("Expected %#v, got %#v", testGetCustomFieldsRequestExpected, actual)
+			}
+		})
+	}
+}
+
+func TestUpdateCustomFieldsEmptyInput(t *testing.T) {
+	ts := newHTTPTestServer(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		if r.Method == "GET" {
+			http.Error(w, testCustomFieldsSchemaResponseText, http.StatusOK)
+			return
+		}
+		http.Error(w, testUpdateCustomFieldsRequestResponseText, http.StatusOK)
+	})
+	defer ts.Close()
+	sess := fullSessionConfig()
+	sess.Config.Endpoint = ts.URL
+	client := NewClient(sess)
+
+	actual, err := client.UpdateCustomFields(3, map[string]interface{}{}, "subnets")
+	if err != nil {
+		t.Fatalf("Bad: %s", err)
+	}
+	if actual != testUpdateCustomFieldsRequestExpected {
+		t.Fatalf("Expected %q, got %q", testUpdateCustomFieldsRequestExpected, actual)
 	}
 }

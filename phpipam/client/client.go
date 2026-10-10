@@ -136,21 +136,24 @@ func (c *Client) GetCustomFields(id int, controller string) (out map[string]inte
 
 // getCustomFieldsRequest performs the actual work for GetCustomFields. This is
 // separated off to make testing easier.
+//
+// Depending on the "Nest custom fields" setting of the API application,
+// PHPIPAM returns custom fields either at the top level of the resource or
+// nested under a "custom_fields" key. Both formats are supported.
 func (c *Client) getCustomFieldsRequest(id int, controller string, schema map[string]phpipam.CustomField) (out map[string]interface{}, err error) {
-	err = c.SendRequest("GET", fmt.Sprintf("/%s/%d/", controller, id), &struct{}{}, &out)
+	var resource map[string]interface{}
+	err = c.SendRequest("GET", fmt.Sprintf("/%s/%d/", controller, id), &struct{}{}, &resource)
 	if err != nil {
 		return
 	}
-	for k := range out {
-		for l := range schema {
-			if k == l {
-				goto customFieldFound
-			}
+	if nested, ok := resource["custom_fields"].(map[string]interface{}); ok {
+		resource = nested
+	}
+	out = make(map[string]interface{})
+	for k, v := range resource {
+		if _, ok := schema[k]; ok {
+			out[k] = v
 		}
-		// not found
-		delete(out, k)
-		// found
-	customFieldFound:
 	}
 	return
 }
@@ -172,7 +175,7 @@ func (c *Client) UpdateCustomFields(id int, in map[string]interface{}, controlle
 	schema, err = c.GetCustomFieldsSchema(controller)
 	switch {
 	// Ignore this error if the caller is not setting any fields.
-	case len(in) == 0 && err.Error() == "Error from API (200): No custom fields defined":
+	case err != nil && len(in) == 0 && err.Error() == "Error from API (200): No custom fields defined":
 		err = nil
 		return
 	case err != nil:

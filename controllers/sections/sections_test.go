@@ -1,6 +1,7 @@
 package sections
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -8,7 +9,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pavel-z1/phpipam-sdk-go/controllers/subnets"
 	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
 	"github.com/pavel-z1/phpipam-sdk-go/phpipam/session"
@@ -585,7 +585,7 @@ func testAccSectionsCRUDReadByName(t *testing.T, sess *session.Session, s Sectio
 	s.ID = out.ID
 
 	if !reflect.DeepEqual(s, out) {
-		t.Fatalf("ReadByName: Expected %s, got %s", spew.Sdump(s), spew.Sdump(out))
+		t.Fatalf("ReadByName: Expected %s, got %s", fmt.Sprintf("%#v", s), fmt.Sprintf("%#v", out))
 	}
 	return out.ID
 }
@@ -705,6 +705,6 @@ func TestAccGetSubnetsInSection(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("Expected %s, got %s", spew.Sdump(expected), spew.Sdump(actual))
+		t.Fatalf("Expected %s, got %s", fmt.Sprintf("%#v", expected), fmt.Sprintf("%#v", actual))
 	}
 }

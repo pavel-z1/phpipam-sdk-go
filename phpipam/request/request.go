@@ -3,10 +3,9 @@ package request
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 
@@ -89,11 +88,56 @@ func (r *requestResponse) ReadResponseJSON(v interface{}) error {
 	}
 
 	if string(resp.Data) != "" {
-		if err := json.Unmarshal(resp.Data, v); err != nil {
+		data, err := stringifyScalars(resp.Data)
+		if err != nil {
+			return fmt.Errorf("JSON parsing error: %s - Response data: %s", err, string(resp.Data))
+		}
+		if err := json.Unmarshal(data, v); err != nil {
 			return fmt.Errorf("JSON parsing error: %s - Response data: %s", err, string(resp.Data))
 		}
 	}
 	return nil
+}
+
+// stringifyScalars rewrites all numbers and booleans in a JSON document as
+// strings, recursing into objects and arrays.
+//
+// Prior to phpIPAM 1.6 running on PHP 8, all values in API responses were
+// returned as strings, and the SDK types are built around that format (ie:
+// the ",string" JSON option on int fields, BoolIntString, JSONIntString). On
+// PHP 8, values are returned using native JSON types unless the server honours
+// the api-stringify-results header. Normalizing the response data here keeps
+// the SDK working against both formats.
+func stringifyScalars(data []byte) ([]byte, error) {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	var v interface{}
+	if err := dec.Decode(&v); err != nil {
+		return nil, err
+	}
+	return json.Marshal(stringifyValue(v))
+}
+
+// stringifyValue performs the work for stringifyScalars on a decoded value.
+func stringifyValue(v interface{}) interface{} {
+	switch t := v.(type) {
+	case json.Number:
+		return t.String()
+	case bool:
+		if t {
+			return "1"
+		}
+		return "0"
+	case map[string]interface{}:
+		for k, e := range t {
+			t[k] = stringifyValue(e)
+		}
+	case []interface{}:
+		for i, e := range t {
+			t[i] = stringifyValue(e)
+		}
+	}
+	return v
 }
 
 // handleError handles a PHPIPAM API error response.
@@ -117,7 +161,7 @@ func newRequestResponse(r *http.Response) *requestResponse {
 		Status:     r.Status,
 	}
 	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	log.Debugf("Response Body Debug ................... %s", body)
 	if err != nil {
 		panic(err)
@@ -134,16 +178,7 @@ func newRequestResponse(r *http.Response) *requestResponse {
 func (r *Request) Send() error {
 	var req *http.Request
 	var err error
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: r.Session.Config.Insecure},
-		Proxy:           http.ProxyFromEnvironment,
-	}
-	client := &http.Client{
-		Transport: tr,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
+	client := r.Session.HTTPClient()
 
 	switch r.Method {
 	case "OPTIONS", "POST", "PUT", "PATCH", "DELETE":
